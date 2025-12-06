@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ThirdPersonMP.h"
+#include "Net/UnrealNetwork.h"     
+#include "Engine/Engine.h"
 
 AThirdPersonMPCharacter::AThirdPersonMPCharacter()
 {
@@ -48,6 +50,25 @@ AThirdPersonMPCharacter::AThirdPersonMPCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	//初始化玩家生命值
+	MaxHealth = 100.0f;
+	CurrentHealth = MaxHealth;
+}
+
+void AThirdPersonMPCharacter::OnRep_CurrentHealth()
+{
+	OnHealthUpdate();
+}
+
+// 复制的属性
+void AThirdPersonMPCharacter::GetLifetimeReplicatedProps(TArray <FLifetimeProperty> & OutLifetimeProps) const
+{
+	//必须调用 GetLifetimeReplicatedProps 的 Super 版本，否则从Actor父类继承的属性不会复制，即便该父类指定要复制。
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+ 
+	//复制当前生命值。
+	DOREPLIFETIME(AThirdPersonMPCharacter, CurrentHealth);
 }
 
 void AThirdPersonMPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -88,6 +109,34 @@ void AThirdPersonMPCharacter::Look(const FInputActionValue& Value)
 
 	// route the input
 	DoLook(LookAxisVector.X, LookAxisVector.Y);
+}
+
+void AThirdPersonMPCharacter::OnHealthUpdate()
+{
+	//客户端特定的功能
+	if (IsLocallyControlled())
+	{
+		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
+ 
+		if (CurrentHealth <= 0)
+		{
+			FString deathMessage = FString::Printf(TEXT("You have been killed."));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
+		}
+	}
+ 
+	//服务器特定的功能
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
+	}
+ 
+	//在所有机器上都执行的函数。
+	/*
+		因任何因伤害或死亡而产生的特殊功能都应放在这里。
+	*/
 }
 
 void AThirdPersonMPCharacter::DoMove(float Right, float Forward)

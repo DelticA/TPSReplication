@@ -48,24 +48,40 @@ protected:
 	/** Mouse Look Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
+	
+	/** 玩家的最大生命值。这是玩家的最高生命值。此值为玩家出生时的生命值。*/
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	float MaxHealth;
+ 
+	/** 玩家的当前生命值。降到0就表示死亡。*/
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
+	float CurrentHealth;
+ 
+	/** RepNotify，用于同步对当前生命值所做的更改。*/
+	UFUNCTION()
+	void OnRep_CurrentHealth();
 
 public:
 
 	/** Constructor */
-	AThirdPersonMPCharacter();	
+	AThirdPersonMPCharacter();
+
+	/** 属性复制 */
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-protected:
-
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+	
+	/** 响应要更新的生命值。修改后，立即在服务器上调用，并在客户端上调用以响应RepNotify*/
+	void OnHealthUpdate();
 
 public:
 
