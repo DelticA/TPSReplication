@@ -20,6 +20,11 @@ AThirdPersonMPProjectile::AThirdPersonMPProjectile()
 	SphereComponent->InitSphereRadius(37.5f);
 	SphereComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 	RootComponent = SphereComponent;
+	//在击中事件上注册此投射物撞击函数。
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		SphereComponent->OnComponentHit.AddDynamic(this, &AThirdPersonMPProjectile::OnProjectileImpact);
+	}
 
 	//定义将作为视觉呈现的网格体。
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultMesh(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
@@ -56,6 +61,22 @@ AThirdPersonMPProjectile::AThirdPersonMPProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+}
+
+void AThirdPersonMPProjectile::Destroyed()
+{
+	FVector spawnLocation = GetActorLocation();
+	UGameplayStatics::SpawnEmitterAtLocation(this, ExplosionEffect, spawnLocation, FRotator::ZeroRotator, true, EPSCPoolMethod::AutoRelease);
+}
+
+void AThirdPersonMPProjectile::OnProjectileImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ( OtherActor )
+	{
+		UGameplayStatics::ApplyPointDamage(OtherActor, Damage, NormalImpulse, Hit, GetInstigator()->Controller, this, DamageType);
+	}
+ 
+	Destroy();
 }
 
 // Called when the game starts or when spawned
