@@ -71,6 +71,27 @@ void AThirdPersonMPCharacter::GetLifetimeReplicatedProps(TArray <FLifetimeProper
 	DOREPLIFETIME(AThirdPersonMPCharacter, CurrentHealth);
 }
 
+void AThirdPersonMPCharacter::SetCurrentHealth(float healthValue)
+{
+	/*
+	 *虽然并非所有变量都需要这样的"存值"函数，但对于游戏期间会频繁变化的敏感游戏进程变量，
+	 *尤其是可被很多不同源修改的变量，这种函数很有用。对于类似的单机游戏和多人游戏，
+	 *使用存值函数都是最佳做法，因为它使这些变量的实时更改更加一致，更便于调试，也更容易扩展新功能。
+	 */
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
+		OnHealthUpdate();
+	}
+}
+
+float AThirdPersonMPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float damageApplied = CurrentHealth - DamageTaken;
+	SetCurrentHealth(damageApplied);
+	return damageApplied;
+}
+
 void AThirdPersonMPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings

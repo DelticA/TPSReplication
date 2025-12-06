@@ -101,6 +101,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
 
+	/** 最大生命值的取值函数。*/
+	UFUNCTION(BlueprintPure, Category="Health")
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+ 
+	/** 当前生命值的取值函数。*/
+	UFUNCTION(BlueprintPure, Category="Health")
+	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+ 
+	/** 当前生命值的存值函数。将此值的范围限定在0到MaxHealth之间，并调用OnHealthUpdate。仅在服务器上调用。*/
+	UFUNCTION(BlueprintCallable, Category="Health")
+	void SetCurrentHealth(float healthValue);
+ 
+	/** 承受伤害的事件。从APawn覆盖。*/
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	float TakeDamage( float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser ) override;
+ 
+
 public:
 
 	/** Returns CameraBoom subobject **/
