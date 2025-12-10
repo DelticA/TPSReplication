@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+//#include "ThirdPersonMPProjectile.h"
 #include "ThirdPersonMPCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class AThirdPersonMPProjectile; //前向声明
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -32,6 +34,10 @@ class AThirdPersonMPCharacter : public ACharacter
 	UCameraComponent* FollowCamera;
 	
 protected:
+
+		 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> FireAction;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -60,6 +66,9 @@ protected:
 	/** RepNotify，用于同步对当前生命值所做的更改。*/
 	UFUNCTION()
 	void OnRep_CurrentHealth();
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TSubclassOf<AThirdPersonMPProjectile> Bullet;
 
 public:
 

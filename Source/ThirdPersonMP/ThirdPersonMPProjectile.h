@@ -24,6 +24,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UStaticMeshComponent* StaticMesh;
 
+	// 用于提供对象视觉呈现效果的静态网格体资产。
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	UStaticMesh* MeshAsset;
+
 	// 用于处理投射物移动的移动组件。
 	/**
 	 * 像角色移动组件一样，投射物移动组件在移动其所归属的Actor时，
@@ -33,7 +37,7 @@ public:
 	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 	// 在投射物撞击其他对象并爆炸时使用的粒子。
-	UPROPERTY(EditAnywhere, Category = "Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
 	class UParticleSystem* ExplosionEffect;
 
 	//此投射物将造成的伤害类型和伤害。

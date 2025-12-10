@@ -27,16 +27,8 @@ AThirdPersonMPProjectile::AThirdPersonMPProjectile()
 	}
 
 	//定义将作为视觉呈现的网格体。
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultMesh(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMesh->SetupAttachment(RootComponent);
-
-	//定义将作为爆炸效果的粒子系统。
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion"));
-	if (DefaultExplosionEffect.Succeeded())
-	{
-		ExplosionEffect = DefaultExplosionEffect.Object;
-	}
 
 	//定义投射物移动组件。
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
@@ -49,14 +41,6 @@ AThirdPersonMPProjectile::AThirdPersonMPProjectile()
 	//定义伤害类型和伤害值。
 	DamageType = UDamageType::StaticClass();
 	Damage = 10.0f;
- 
-	//若成功找到要使用的静态网格体资产，则设置该静态网格体及其位置/比例。
-	if (DefaultMesh.Succeeded())
-	{
-		StaticMesh->SetStaticMesh(DefaultMesh.Object);
-		StaticMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -37.5f));
-		StaticMesh->SetRelativeScale3D(FVector(0.75f, 0.75f, 0.75f));
-	}
 	
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -84,6 +68,16 @@ void AThirdPersonMPProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (MeshAsset)
+	{
+		StaticMesh->SetStaticMesh(MeshAsset);
+		StaticMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -37.5f));
+		StaticMesh->SetRelativeScale3D(FVector(0.75f, 0.75f, 0.75f));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MeshAsset not set on %s."), *GetName());
+	}
 }
 
 // Called every frame

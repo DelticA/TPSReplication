@@ -59,6 +59,7 @@ AThirdPersonMPCharacter::AThirdPersonMPCharacter()
 
 void AThirdPersonMPCharacter::StartFire()
 {
+	UE_LOG(LogThirdPersonMP, Warning, TEXT("'%s' Start fire!"), *GetNameSafe(this));
 	if (!bIsFiringWeapon)
 	{
 		bIsFiringWeapon = true;
@@ -85,7 +86,7 @@ void AThirdPersonMPCharacter::HandleFire_Implementation()
 	spawnParameters.Instigator = GetInstigator();
 	spawnParameters.Owner = this;
  
-	AThirdPersonMPProjectile* spawnedProjectile = GetWorld()->SpawnActor<AThirdPersonMPProjectile>(spawnLocation, spawnRotation, spawnParameters);
+	AThirdPersonMPProjectile* spawnedProjectile = GetWorld()->SpawnActor<AThirdPersonMPProjectile>(Bullet, spawnLocation, spawnRotation, spawnParameters);
 }
 
 void AThirdPersonMPCharacter::OnRep_CurrentHealth()
@@ -139,14 +140,23 @@ void AThirdPersonMPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AThirdPersonMPCharacter::Look);
+
+		// Fire binding (Enhanced Input)
+		if (FireAction)
+		{
+			UE_LOG(LogThirdPersonMP, Warning, TEXT("'%s' Bind fire action!"), *GetNameSafe(this));
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AThirdPersonMPCharacter::StartFire);
+			//EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AThirdPersonMPCharacter::StopFire);
+		}
+		else
+		{
+			UE_LOG(LogThirdPersonMP, Error, TEXT("'%s' Failed to find a FireAction!"), *GetNameSafe(this));
+		}
 	}
 	else
 	{
 		UE_LOG(LogThirdPersonMP, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
-
-	// 处理发射投射物
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AThirdPersonMPCharacter::StartFire);
  
 }
 
