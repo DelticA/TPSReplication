@@ -67,7 +67,8 @@ void AThirdPersonMPProjectile::OnProjectileImpact(UPrimitiveComponent* HitCompon
 void AThirdPersonMPProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// [delta 251215 to do: visualize the fvector settings in the editor instead of hard coding]
 	if (MeshAsset)
 	{
 		StaticMesh->SetStaticMesh(MeshAsset);
