@@ -143,5 +143,10 @@ void AThirdPersonMPHUD::DrawCharacterNetworkInfo(AThirdPersonMPCharacter* Charac
 	// 绘制文本
 	DrawText(InfoText, RoleColor, IndentX, YPos, nullptr, 0.9f);
 	YPos += LineHeight;
+
+	// 显示生命值
+	FString HealthText = FString::Printf(TEXT("Health: %f"), Character->GetCurrentHealth());
+	DrawText(HealthText, FColor::White, IndentX, YPos, nullptr, 0.9f);
+	YPos += LineHeight;
 }
 

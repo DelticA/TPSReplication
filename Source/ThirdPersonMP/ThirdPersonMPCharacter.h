@@ -58,11 +58,14 @@ protected:
 	/** 玩家的最大生命值。这是玩家的最高生命值。此值为玩家出生时的生命值。*/
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth;
- 
+
 	/** 玩家的当前生命值。降到0就表示死亡。*/
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
 	float CurrentHealth;
- 
+
+	/** 上一次的生命值，用于计算伤害值（客户端显示受击提示）*/
+	float PreviousHealth;
+
 	/** RepNotify，用于同步对当前生命值所做的更改。*/
 	UFUNCTION()
 	void OnRep_CurrentHealth();
@@ -82,6 +85,9 @@ protected:
 
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	/** 每帧调用，用于显示常驻调试信息 */
+	virtual void Tick(float DeltaTime) override;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);

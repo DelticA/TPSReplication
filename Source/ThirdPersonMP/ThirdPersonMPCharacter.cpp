@@ -57,6 +57,42 @@ AThirdPersonMPCharacter::AThirdPersonMPCharacter()
 	//初始化玩家生命值
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
+	PreviousHealth = MaxHealth;
+
+	// 启用Tick以显示常驻调试信息
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AThirdPersonMPCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// 显示常驻生命值信息（角色头顶上方）
+	FVector HealthLocation = GetActorLocation() + FVector(0, 0, 120.f);
+
+	// 根据生命值百分比选择颜色
+	float HealthPercent = CurrentHealth / MaxHealth;
+	FColor HealthColor;
+	if (HealthPercent > 0.6f)
+	{
+		HealthColor = FColor::Green;  // 生命值充足
+	}
+	else if (HealthPercent > 0.3f)
+	{
+		HealthColor = FColor::Yellow; // 生命值中等
+	}
+	else if (HealthPercent > 0.f)
+	{
+		HealthColor = FColor::Red;    // 生命值危险
+	}
+	else
+	{
+		HealthColor = FColor::White;  // 已死亡
+	}
+
+	// 常驻显示生命值（每帧刷新）
+	WORLD_DEBUG_MESSAGE(GetWorld(), HealthLocation, 0.f, HealthColor,
+		FString::Printf(TEXT("HP: %.0f/%.0f"), CurrentHealth, MaxHealth));
 }
 
 void AThirdPersonMPCharacter::StartFire()
@@ -182,26 +218,19 @@ void AThirdPersonMPCharacter::Look(const FInputActionValue& Value)
 
 void AThirdPersonMPCharacter::OnHealthUpdate()
 {
-	//客户端特定的功能
-	if (IsLocallyControlled())
+	// 计算伤害值并显示受击提示（服务器和客户端都执行）
+	float Damage = PreviousHealth - CurrentHealth;
+	if (Damage > 0.f)
 	{
-		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
- 
-		if (CurrentHealth <= 0)
-		{
-			FString deathMessage = FString::Printf(TEXT("You have been killed."));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
-		}
+		// 显示受击提示（临时显示3秒）
+		FVector DamageLocation = GetActorLocation() + FVector(0, 0, 140.f);
+		WORLD_DEBUG_MESSAGE(GetWorld(), DamageLocation, 3.f, FColor::Red,
+			FString::Printf(TEXT("-%.1f"), Damage));
 	}
- 
-	//服务器特定的功能
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
-	}
- 
+
+	// 更新上一次的生命值
+	PreviousHealth = CurrentHealth;
+
 	//在所有机器上都执行的函数。
 	/*
 		因任何因伤害或死亡而产生的特殊功能都应放在这里。
