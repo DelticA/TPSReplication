@@ -5,6 +5,7 @@
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
 
 AThirdPersonMPHUD::AThirdPersonMPHUD()
@@ -21,16 +22,55 @@ void AThirdPersonMPHUD::DrawHUD()
 		return;
 	}
 
-	// 设置起始Y位置
-	float YPos = 50.0f;
-	const float LineHeight = 20.0f;
-
-	// 获取本地玩家控制的角色
+	// 获取本地玩家控制器
 	APlayerController* PC = GetOwningPlayerController();
 	if (!PC)
 	{
 		return;
 	}
+
+	// ========== 在右上角显示 Ping 值 ==========
+	if (PC->PlayerState)
+	{
+		// 获取 Ping 值（单位：毫秒）
+		float PingMs = PC->PlayerState->GetPingInMilliseconds();
+
+		// 根据 Ping 值选择颜色
+		FColor PingColor;
+		if (PingMs < 50.0f)
+		{
+			PingColor = FColor::Green;      // 优秀
+		}
+		else if (PingMs < 100.0f)
+		{
+			PingColor = FColor::Yellow;     // 良好
+		}
+		else if (PingMs < 200.0f)
+		{
+			PingColor = FColor::Orange;     // 一般
+		}
+		else
+		{
+			PingColor = FColor::Red;        // 较差
+		}
+
+		// 在右上角显示 Ping
+		FString PingText = FString::Printf(TEXT("Ping: %.0f ms"), PingMs);
+
+		// 计算文本宽度以实现右对齐
+		float TextWidth, TextHeight;
+		GetTextSize(PingText, TextWidth, TextHeight, nullptr, 1.0f);
+
+		float XPos = Canvas->SizeX - TextWidth - 20.0f;  // 距离右边缘20像素
+		float YPos = 20.0f;  // 距离顶部20像素
+
+		DrawText(PingText, PingColor, XPos, YPos, nullptr, 1.0f);
+	}
+
+	// ========== 原有的调试信息 ==========
+	// 设置起始Y位置
+	float YPos = 50.0f;
+	const float LineHeight = 20.0f;
 
 	APawn* ControlledPawn = PC->GetPawn();
 	AThirdPersonMPCharacter* LocalCharacter = Cast<AThirdPersonMPCharacter>(ControlledPawn);
