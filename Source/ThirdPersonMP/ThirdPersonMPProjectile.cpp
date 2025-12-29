@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+#include "TPSProjectileMovementComponent.h"
 
 #if ENABLE_VISUAL_LOG
 #include "VisualLogger/VisualLogger.h"
@@ -35,7 +36,7 @@ AThirdPersonMPProjectile::AThirdPersonMPProjectile()
 	StaticMesh->SetupAttachment(RootComponent);
 
 	//定义投射物移动组件。
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovementComponent = CreateDefaultSubobject<UTPSProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovementComponent->SetUpdatedComponent(SphereComponent);
 	ProjectileMovementComponent->InitialSpeed = 1500.0f;
 	ProjectileMovementComponent->MaxSpeed = 1500.0f;

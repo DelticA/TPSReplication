@@ -34,7 +34,7 @@ public:
 	 * 若该Actor的 bReplicates 设为 True，则投射物移动组件自动处理复制。
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
-	class UProjectileMovementComponent* ProjectileMovementComponent;
+	class UTPSProjectileMovementComponent* ProjectileMovementComponent;
 
 	// 在投射物撞击其他对象并爆炸时使用的粒子。
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
