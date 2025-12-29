@@ -47,8 +47,8 @@ public:
 	//此投射物造成的伤害。
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
 	float Damage;
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AThirdPersonMPProjectile();
 
@@ -62,7 +62,7 @@ protected:
 	void OnProjectileImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
  
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
